@@ -1,16 +1,20 @@
 package assignment5;
 
-
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import application.CritterWorld;
+import application.printCritter;
+import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+
+
+
 
 public abstract class Critter {
 	/* NEW FOR PROJECT 5 */
@@ -37,27 +41,23 @@ public abstract class Critter {
 		return javafx.scene.paint.Color.WHITE; 
 	}
 	
-	public javafx.scene.paint.Color viewOutlineColor() { 
-		return viewColor(); 
-	}
-	public javafx.scene.paint.Color viewFillColor() { 
-		return viewColor(); 
-	}
+	public javafx.scene.paint.Color viewOutlineColor() { return viewColor(); }
+	public javafx.scene.paint.Color viewFillColor() { return viewColor(); }
+	public static HashMap <Key, List<Critter>> positions  = new HashMap<Key, List<Critter> >();
 	
 	public abstract CritterShape viewShape(); 
 	
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-	public static HashMap <Key, List<Critter>> positions  = new HashMap<Key, List<Critter> >();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
 	}
 	
-	protected final String look(int direction, boolean steps) {  //doTimeStep???????????
-		this.energy =- Params.look_energy_cost;
+	protected final String look(int direction, boolean steps) {
+		this.energy = this.energy - Params.look_energy_cost;
 		int x;
 		int y;
 		if(!steps) {
@@ -245,7 +245,8 @@ public abstract class Critter {
 			}
 		}
 		return null;
-	}
+		
+		}
 	
 	/* rest is unchanged from Project 4 */
 	
@@ -264,25 +265,36 @@ public abstract class Critter {
 	public String toString() { return ""; }
 	
 	private int energy = 0;
-	protected int getEnergy() { 
-		return energy;
-		
-	}
+	protected int getEnergy() { return energy; }
 	
 	private int x_coord;
 	private int y_coord;
 	private boolean moved;
 	private boolean inFight;
 	
-	private final int step(Character type, int steps, int initVal) {
+	private final boolean hasCritterthere(int x, int y) {  	
+		//checks if there is a critter in the position that the fighting critter wants to flee to
+	Key pos = new Key(x,y);
+	if(positions.containsKey(pos)) {		//checks if position critter is at position
+		List<Critter> crit = positions.get(pos);
 		
-		if(type.equals('x')) {
-			//System.out.println("steps: x " + "step size: " + steps+ "initval" + initVal);
-			initVal = initVal + steps;
-//			if(initVal >= Params.world_width || initVal < 0) {
-//				initVal = Math.abs(initVal % Params.world_width);
-//			}
-			if(initVal == -1) {
+		for(Critter c: crit ) {					//checks if critter at that position is alive
+			if(!(c.energy <= 0)) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
+	}
+	
+private final int step(Character type, int steps, int initVal) {
+		
+		if(type.equals('x')) { // updates x position
+			
+			initVal = initVal + steps; //adds the number of steps the critter must take to the inital position of the critter
+
+			if(initVal == -1) { 					//wraps the critters around
 				initVal = Params.world_width-1;
 			}
 			if(initVal == -2) {
@@ -296,14 +308,12 @@ public abstract class Critter {
 			}
 			
 		}
-		if(type.equals('y')) {
-			//System.out.println("steps: y " + "step size: " + steps+ " initval " + initVal);
-			initVal = initVal + steps;
-//			if(initVal >= Params.world_height || initVal < 0) {
-//				initVal = Math.abs(initVal % Params.world_height);
-//			}
+		if(type.equals('y')) {				//updates the critter's y position
+
+			initVal = initVal + steps;  		//adds the number of steps to the critter's inital position
+
 			if(initVal == -1) {
-				initVal = Params.world_width-1;
+				initVal = Params.world_width-1;		//wraps critter world
 			}
 			if(initVal == -2) {
 				initVal = Params.world_width-2;
@@ -316,37 +326,20 @@ public abstract class Critter {
 			}
 			
 		}
-		//System.out.println("new pos" + initVal);
 		return initVal;
 	}
-	
-	private final boolean hasCritterthere(int x, int y) {
-		//System.out.println("hascritterthere");
-		Key pos = new Key(x,y);
-		if(positions.containsKey(pos)) {
-			List<Critter> crit = positions.get(pos);
-			for(Critter c: crit ) {
-				if(!(c.energy <= 0)) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-	
-	
-	protected final void walk(int direction) {//TEST
+
+	protected final void walk(int direction) {
 		int xpos;
 		int ypos;
-		this.energy = this.energy - Params.walk_energy_cost;
+		this.energy = this.energy - Params.walk_energy_cost;	//deducts walking energy cost
 		if(!this.moved) {
-			switch(direction) {
-				case 0:
+			switch(direction) {							//updates position based on direction
+				case 0:										
 					
-					xpos = step('x', 1, this.x_coord);
+					xpos = step('x', 1, this.x_coord);		
 					ypos = this.y_coord;
-					if(this.inFight) {
+					if(this.inFight) {							//run method is critter is fighting
 						if(!hasCritterthere(xpos,ypos)) {
 							this.x_coord = xpos;
 						}
@@ -455,19 +448,18 @@ public abstract class Critter {
 			this.moved = true;
 		}
 		
-		
 	}
 	
 	protected final void run(int direction) {
 		int xpos;
 		int ypos;
-		this.energy = this.energy - Params.run_energy_cost;
-		if(!this.moved) {
-			switch(direction) {
-				case 0:
+		this.energy = this.energy - Params.run_energy_cost;			//deducts run energy cost
+		if(!this.moved) {										//checks if critter has already moved before
+			switch(direction) {								//updates position based on direction
+				case 0:											
 					xpos = step('x', 2, this.x_coord);
 					ypos = this.y_coord;
-					if(this.inFight) {
+					if(this.inFight) {							//run method if critter is in fight
 						if(!hasCritterthere(xpos,ypos)) {
 							this.x_coord = xpos;
 							this.y_coord = ypos;
@@ -581,13 +573,12 @@ public abstract class Critter {
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
-		//System.out.println("reproducing");
-		if(!(this.energy > Params.min_reproduce_energy)) {
+		if(!(this.energy > Params.min_reproduce_energy)) {			//makes sure that parent critter has enough energy to reproduce
 			return;
 		}
-		offspring.energy = this.energy/2;
-		this.energy = (int)Math.ceil(this.energy/2);
-		switch(direction) {
+		offspring.energy = this.energy/2;					//gives offspring half of parents energy
+		this.energy = (int)Math.ceil(this.energy/2);		//reduces parents energy
+		switch(direction) {									//updates offsprings position based on parent's position and direction
 		case 0:
 			
 			offspring.x_coord = step('x', 1, this.x_coord);
@@ -623,187 +614,16 @@ public abstract class Critter {
 			break;
 	}
 		
-		babies.add(offspring);
+		babies.add(offspring);						//adds offsprings to baby population
 		
 	}
 
 	public abstract void doTimeStep();
-	public abstract boolean fight(String opponent);
+	public abstract boolean fight(String oponent);
 	
-	/**
-	 * create and initialize a Critter subclass.
-	 * critter_class_name must be the unqualified name of a concrete subclass of Critter, if not,
-	 * an InvalidCritterException must be thrown.
-	 * (Java weirdness: Exception throwing does not work properly if the parameter has lower-case instead of
-	 * upper. For example, if craig is supplied instead of Craig, an error is thrown instead of
-	 * an Exception.)
-	 * @param critter_class_name
-	 * @throws InvalidCritterException
-	 */
-	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
-		
-		
-		//error no capital letter
-		Class<?> fefe = null;
-
-		
-		try {
-			fefe  = Class.forName(Critter.myPackage + "." + critter_class_name);
-			Constructor<?> construct = fefe.getConstructor();
-			Object newcrit = construct.newInstance();
-			
-			if(!(newcrit instanceof Critter)) {
-				throw new InvalidCritterException(critter_class_name);
-			}
-			
-			((Critter) newcrit).x_coord = getRandomInt(Params.world_width);
-			((Critter) newcrit).y_coord = getRandomInt(Params.world_height);
-			((Critter) newcrit).energy = Params.start_energy;
-			((Critter) newcrit).moved = false;
-			//System.out.println("new crit x coord:" + ((Critter)newcrit).x_coord);
-			//System.out.println("new crit y coord:" + ((Critter)newcrit).y_coord);
-			population.add((Critter) newcrit);
-			updatePositions();
-			
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	/**
-	 * Gets a list of critters of a specific type.
-	 * @param critter_class_name What kind of Critter is to be listed.  Unqualified class name.
-	 * @return List of Critters.
-	 * @throws InvalidCritterException
-	 */
-	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
-		Class<?> crit = null;
-		List<Critter> instances = new java.util.ArrayList<Critter>();
-		
-		try {
-			crit = Class.forName(Critter.myPackage +"." + critter_class_name);
-			for (Critter a : population) {
-				if (crit.isInstance(a)) {
-					instances.add(a);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			//return instances;
-		}
-
-		return instances;
-	}
-	
-	/**
-	 * Prints out how many Critters of each type there are on the board.
-	 * @param critters List of Critters.
-	 */
-	public static void runStats(List<Critter> critters) {
-		System.out.print("" + critters.size() + " critters as follows -- ");
-		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
-		for (Critter crit : critters) {
-			String crit_string = crit.toString();
-			Integer old_count = critter_count.get(crit_string);
-			if (old_count == null) {
-				critter_count.put(crit_string,  1);
-			} else {
-				critter_count.put(crit_string, old_count.intValue() + 1);
-			}
-		}
-		String prefix = "";
-		for (String s : critter_count.keySet()) {
-			System.out.print(prefix + s + ":" + critter_count.get(s));
-			prefix = ", ";
-		}
-		System.out.println();		
-	}
-	
-	/* the TestCritter class allows some critters to "cheat". If you want to 
-	 * create tests of your Critter model, you can create subclasses of this class
-	 * and then use the setter functions contained here. 
-	 * 
-	 * NOTE: you must make sure that the setter functions work with your implementation
-	 * of Critter. That means, if you're recording the positions of your critters
-	 * using some sort of external grid or some other data structure in addition
-	 * to the x_coord and y_coord functions, then you MUST update these setter functions
-	 * so that they correctly update your grid/data structure.
-	 */
-	static abstract class TestCritter extends Critter {///?? do we need to update
-		protected void setEnergy(int new_energy_value) {
-			super.energy = new_energy_value;
-		}
-		
-		protected void setX_coord(int new_x_coord) {
-			super.x_coord = new_x_coord;
-			updatePositions();
-		}
-		
-		protected void setY_coord(int new_y_coord) {
-			super.y_coord = new_y_coord;
-			updatePositions();
-			
-		}
-		
-		protected int getX_coord() {
-			return super.x_coord;
-		}
-		
-		protected int getY_coord() {
-			return super.y_coord;
-		}
-		
-
-		/*
-		 * This method getPopulation has to be modified by you if you are not using the population
-		 * ArrayList that has been provided in the starter code.  In any case, it has to be
-		 * implemented for grading tests to work.
-		 */
-		protected static List<Critter> getPopulation() {
-			return population;
-		}
-		
-		/*
-		 * This method getBabies has to be modified by you if you are not using the babies
-		 * ArrayList that has been provided in the starter code.  In any case, it has to be
-		 * implemented for grading tests to work.  Babies should be added to the general population 
-		 * at either the beginning OR the end of every timestep.
-		 */
-		protected static List<Critter> getBabies() {
-			return babies;
-		}
-	}
-
-	/**
-	 * Clear the world of all critters, dead and alive
-	 */
-	public static void clearWorld() { 
-		population.clear();
-		updatePositions();
-	}
-	
-	public static void updatePositions() {
-		positions.clear();	
-		for(Critter c: population) {
-			Key po = new Key(c.x_coord,c.y_coord);
-			if(!(positions.containsKey(po))) {
-				List <Critter> clist = new ArrayList<Critter>();
-				clist.add(c);
-				positions.put(po, clist);
-				
-			}else {
-				
-				List <Critter> clist = positions.get(po);
-				clist.add(c);
-				positions.put(po, clist);
-			}
-		}
-	}
 	
 	public static void worldTimeStep() {
-		if(population == null || population.isEmpty()) {
+		if(population == null || population.isEmpty()) {	//returns if population is empty
 			return;
 		}
 		for(Critter c : population) {
@@ -812,16 +632,16 @@ public abstract class Critter {
 		}
 		
 		updatePositions();
-		for(List<Critter> crit: positions.values()) {
+		for(List<Critter> crit: positions.values()) {		//gets array list of all critters at different positions in hash map
 			boolean aFight;
 			boolean bFight;
 			int aDice;
 			int bDice;
-			if(crit.size() > 1) {
-				int nextOp = 1;
+			if(crit.size() > 1) {		//if arraylist is bigger than 1, then multiple critters at one position, and must fight
+				int nextOp = 1;			//keeps track of next opponents (if there's more than 1)
 				Critter a = crit.get(0);
 				Critter b = crit.get(nextOp);
-				while(nextOp < crit.size()){
+				while(nextOp < crit.size()){		//ends of no more opponents
 					b = crit.get(nextOp);
 					a.inFight = true;
 					b.inFight = true;
@@ -854,13 +674,13 @@ public abstract class Critter {
 			}
 			
 		}
-		for(Critter c: population) {
+		for(Critter c: population) {  				//deducts rest energy cost for all critters
 
 			c.energy = c.energy - Params.rest_energy_cost;
 		}
 		
 		
-		for(int i=0;i<population.size();i++) {
+		for(int i=0;i<population.size();i++) { //removes dead critters
 
 			if(population.get(i) != null)
 			{
@@ -869,7 +689,7 @@ public abstract class Critter {
 				}
 			}
 		}
-		for(int i=0;i<Params.refresh_algae_count;i++) {
+		for(int i=0;i<Params.refresh_algae_count;i++) {	//creates new algae
 			try {
 				Critter.makeCritter("Algae");
 				
@@ -879,16 +699,147 @@ public abstract class Critter {
 			}
 			
 		}
-		population.addAll(babies);
+		population.addAll(babies); //adds all babies to population
 		babies.clear();
 	}
 	
-	public static void displayWorld(Stage primaryStage) { //multiple on one position
-		GridPane gridPane = new GridPane();
-		gridPane.setMinSize(Params.world_width, Params.world_height);
-		gridPane.setPadding(new Insets(10,10,10, 10));
-		
-		primaryStage.setScene(new Scene(gridPane,300,250));
-		primaryStage.show();
+//	public static void displayWorld(Object pane) {
+//		Stage primaryStage = new Stage();
+//		pane = primaryStage;
+//		GridPane gridPane = new GridPane();
+//		gridPane.setMinSize(Params.world_width, Params.world_height);
+//		gridPane.setPadding(new Insets(25,25,25,25));
+//		//gridPane.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+//		primaryStage.setScene(new Scene(gridPane,300,250));
+//		primaryStage.show();
+//		//viewColor
+//		
+//	} 
+	//Alternate displayWorld, where you use Main.<pane> to reach into your
+	 //  display component.
+	public static void displayWorld() {
+		for(Critter c: population) {
+			printCritter.print(c.viewShape(), c.viewOutlineColor(), c.viewFillColor(), c.x_coord,c.y_coord);
+		}
+		Application.launch(CritterWorld.class);
 	}
+	
+	
+	/* create and initialize a Critter subclass
+	 * critter_class_name must be the name of a concrete subclass of Critter, if not
+	 * an InvalidCritterException must be thrown
+	 */
+	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+		Class<?> fefe = null;
+
+		
+		try {
+			fefe  = Class.forName(Critter.myPackage + "." + critter_class_name);
+			Constructor<?> construct = fefe.getConstructor();
+			Object newcrit = construct.newInstance();
+			
+			if(!(newcrit instanceof Critter)) {							//makes sure that new critter is a valid critter
+				throw new InvalidCritterException(critter_class_name);
+			}
+			
+			((Critter) newcrit).x_coord = getRandomInt(Params.world_width);
+			((Critter) newcrit).y_coord = getRandomInt(Params.world_height);
+			((Critter) newcrit).energy = Params.start_energy;
+			((Critter) newcrit).moved = false;
+			population.add((Critter) newcrit);						
+			
+			
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
+		return null;
+	}
+	
+	public static String runStats(List<Critter> critters) {
+		return null;
+	}
+	
+	/* the TestCritter class allows some critters to "cheat". If you want to 
+	 * create tests of your Critter model, you can create subclasses of this class
+	 * and then use the setter functions contained here. 
+	 * 
+	 * NOTE: you must make sure that the setter functions work with your implementation
+	 * of Critter. That means, if you're recording the positions of your critters
+	 * using some sort of external grid or some other data structure in addition
+	 * to the x_coord and y_coord functions, then you MUST update these setter functions
+	 * so that they correctup update your grid/data structure.
+	 */
+	static abstract class TestCritter extends Critter {
+		protected void setEnergy(int new_energy_value) {
+			super.energy = new_energy_value;
+		}
+		
+		protected void setX_coord(int new_x_coord) {
+			super.x_coord = new_x_coord;
+		}
+		
+		protected void setY_coord(int new_y_coord) {
+			super.y_coord = new_y_coord;
+		}
+		
+		protected int getX_coord() {
+			return super.x_coord;
+		}
+		
+		protected int getY_coord() {
+			return super.y_coord;
+		}
+		
+
+		/*
+		 * This method getPopulation has to be modified by you if you are not using the population
+		 * ArrayList that has been provided in the starter code.  In any case, it has to be
+		 * implemented for grading tests to work.
+		 */
+		protected static List<Critter> getPopulation() {
+			return population;
+		}
+		
+		/*
+		 * This method getBabies has to be modified by you if you are not using the babies
+		 * ArrayList that has been provided in the starter code.  In any case, it has to be
+		 * implemented for grading tests to work.  Babies should be added to the general population 
+		 * at either the beginning OR the end of every timestep.
+		 */
+		protected static List<Critter> getBabies() {
+			return babies;
+		}
+	}
+	public static void updatePositions() {
+		positions.clear();	
+		
+		for(Critter c: population) {
+			Key po = new Key(c.x_coord,c.y_coord);		//creates key with critter's position
+			if(!(positions.containsKey(po))) {					//adds key if it doesn't exist, and adds critter
+				List <Critter> clist = new ArrayList<Critter>();	
+				clist.add(c);
+				positions.put(po, clist);
+				
+			}else {
+				
+				List <Critter> clist = positions.get(po);		//adds critter to array list if key exists already
+				clist.add(c);
+				positions.put(po, clist);
+			}
+		}
+	}
+	
+	/**
+	 * Clear the world of all critters, dead and alive
+	 */
+	public static void clearWorld() {
+		population.clear();
+		updatePositions();
+	}
+	
+	
 }
