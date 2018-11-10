@@ -64,10 +64,15 @@ public class CritterWorld extends Application {
         }
         
         //make critter button
-    	Label makelabel = new Label("Critter Name:");
+    	//Label makelabel = new Label("Critter Name:");
+        //grid.add(makelabel, 0, 0);
         TextField makeField = new TextField ();
-        grid.add(makelabel, 0, 0);
-        grid.add(makeField, 1, 0);
+        makeField.setPromptText("Enter Critter Name");
+        TextField makenum = new TextField ();
+        makenum.setPromptText("Enter # of Critters");
+        
+        grid.add(makeField, 0, 0);
+        grid.add(makenum, 1, 0);
         Button make = new Button();
         make.setText("Make");
         grid.add(make, 2, 0);
@@ -75,43 +80,57 @@ public class CritterWorld extends Application {
         //step button
         Button step = new Button();
         step.setText("Step");
-        grid.add(step, 2, 2);
-        Label steplabel = new Label("Number of Steps:");
+        grid.add(step, 1, 1);
+        //Label steplabel = new Label("Number of Steps:");
         TextField stepField = new TextField ();
-        grid.add(steplabel, 0, 2);
-        grid.add(stepField, 1, 2);
+        stepField.setPromptText("Enter # of Steps");
+        //grid.add(steplabel, 0, 2);
+        grid.add(stepField, 0, 1);
         
         //seed button
         Button seed = new Button();
         seed.setText("Set Seed");
-        grid.add(seed, 2, 3);
-        Label seedlabel = new Label("Seed:");
+        grid.add(seed, 1, 2);
         TextField seedField = new TextField ();
-        grid.add(seedlabel, 0, 3);
-        grid.add(seedField, 1, 3);
+        seedField.setPromptText("Enter Seed Number");
+        grid.add(seedField, 0, 2);
         
         //run stats button
         Button stat = new Button();
         stat.setText("Run Stats");
-        grid.add(stat, 1, 4);
+        grid.add(stat, 0, 4);
         TextArea statbox = new TextArea();
-        grid.add(statbox, 1, 5);
+        statbox.setPrefColumnCount(2);
+        grid.add(statbox, 0, 5);
         
         //quit button
         Button end = new Button();
         end.setText("Quit");
-        grid.add(end, 1, 6);
+        grid.add(end, 0, 6);
+        
         make.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				
 				try {
-					int num = Integer.parseInt(makeField.getText());
-					for(int i=0;i<num;i++) {
+					if(makeField.getText().isEmpty()) {
+						System.out.println("error processing: make " + makeField.getText()+ " "+ makenum.getText());
+					}else if(makenum.getText().isEmpty()) {
 						Critter.makeCritter(makeField.getText());
+						Critter.updatePositions();
+						Critter.displayWorld();
+					}else {
+						int num = Integer.parseInt(makenum.getText());
+						for(int i=0;i<num;i++) {
+							Critter.makeCritter(makeField.getText());
+						}
+						Critter.updatePositions();
+						Critter.updateDisplay();
 					}
 					
-				} catch (Exception e) {//exception right?
-					System.out.println("error processing: " + makeField.getText()); 
+				} 
+				catch (Exception e) {//exception right?
+					System.out.println("error processing: " + makeField.getText()+ " " + makenum.getText()); 
 				}
 			}
         });
@@ -119,7 +138,7 @@ public class CritterWorld extends Application {
         step.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if(stepField.getText() == null) {
+				if(stepField.getText() == "") {
 					Critter.worldTimeStep();
 					System.out.println("stepped 1 time");
     			}else {
