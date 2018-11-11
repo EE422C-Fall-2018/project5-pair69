@@ -7,6 +7,7 @@ import java.util.List;
 
 import application.CritterWorld;
 import application.printCritter;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -48,12 +49,16 @@ public abstract class Critter {
 	public abstract CritterShape viewShape(); 
 	
 	private static String myPackage;
-	private	static List<Critter> population = new java.util.ArrayList<Critter>();
+	private static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
+	}
+	
+	public static String getPackage() {
+		return Critter.myPackage;
 	}
 	
 	protected final String look(int direction, boolean steps) {
@@ -717,6 +722,12 @@ private final int step(Character type, int steps, int initVal) {
 //	} 
 	//Alternate displayWorld, where you use Main.<pane> to reach into your
 	 //  display component.
+	public static void updateDisplay() {
+		printCritter.clearDisplay();
+		for(Critter c: population) {
+			printCritter.print(c.viewShape(), c.viewOutlineColor(), c.viewFillColor(), c.x_coord,c.y_coord);
+		}
+	}
 	public static void displayWorld() {
 		for(Critter c: population) {
 			printCritter.print(c.viewShape(), c.viewOutlineColor(), c.viewFillColor(), c.x_coord,c.y_coord);
@@ -756,11 +767,45 @@ private final int step(Character type, int steps, int initVal) {
 	}
 	
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
-		return null;
+		Class<?> crit = null;
+		List<Critter> instances = new java.util.ArrayList<Critter>();
+		
+		try {
+			crit = Class.forName(Critter.myPackage +"." + critter_class_name);
+			for (Critter a : population) {
+				if (crit.isInstance(a)) {
+					instances.add(a);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		}
+
+		return instances;
 	}
 	
 	public static String runStats(List<Critter> critters) {
-		return null;
+		String result = null;
+		result = "" + critters.size() + " critters as follows -- ";
+		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
+		for (Critter crit : critters) {
+			String crit_string = crit.toString();
+			Integer old_count = critter_count.get(crit_string);
+			if (old_count == null) {
+				critter_count.put(crit_string,  1);
+			} else {
+				critter_count.put(crit_string, old_count.intValue() + 1);
+			}
+		}
+		String prefix = "";
+		for (String s : critter_count.keySet()) {
+			result = result + prefix + s + ":" + critter_count.get(s);
+			prefix = ", ";
+		}
+		return result;
+		
+		
 	}
 	
 	/* the TestCritter class allows some critters to "cheat". If you want to 

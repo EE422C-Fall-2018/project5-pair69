@@ -1,5 +1,7 @@
 package application;
 
+import java.util.List;
+
 import assignment5.Critter;
 import assignment5.Params;
 import javafx.application.Application;
@@ -47,9 +49,9 @@ public class CritterWorld extends Application {
 //		Button button2 = new Button("Button 2");
 //		grid.add(button2, 0, 0);
 //		grid.add(button1, 0, 2);
-		
+		world.setStyle("-fx-background-color: white; -fx-grid-lines-visible: true");
 		world.setPadding(new Insets(10,10,10,10));
-		world.setGridLinesVisible(true);
+		//world.setGridLinesVisible(true);
 		for (int i = 0; i < Params.world_width; i++) {
            	ColumnConstraints cc = new ColumnConstraints();
            	cc.setPercentWidth(100.0 / Params.world_width);
@@ -64,8 +66,7 @@ public class CritterWorld extends Application {
         }
         
         //make critter button
-    	//Label makelabel = new Label("Critter Name:");
-        //grid.add(makelabel, 0, 0);
+    	
         TextField makeField = new TextField ();
         makeField.setPromptText("Enter Critter Name");
         TextField makenum = new TextField ();
@@ -98,7 +99,10 @@ public class CritterWorld extends Application {
         //run stats button
         Button stat = new Button();
         stat.setText("Run Stats");
-        grid.add(stat, 0, 4);
+        grid.add(stat, 1, 4);
+        TextField statField = new TextField ();
+        statField.setPromptText("Enter Critter Class");
+        grid.add(statField, 0, 4);
         TextArea statbox = new TextArea();
         statbox.setPrefColumnCount(2);
         grid.add(statbox, 0, 5);
@@ -118,7 +122,7 @@ public class CritterWorld extends Application {
 					}else if(makenum.getText().isEmpty()) {
 						Critter.makeCritter(makeField.getText());
 						Critter.updatePositions();
-						Critter.displayWorld();
+						Critter.updateDisplay();
 					}else {
 						int num = Integer.parseInt(makenum.getText());
 						for(int i=0;i<num;i++) {
@@ -138,16 +142,23 @@ public class CritterWorld extends Application {
         step.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if(stepField.getText() == "") {
+				if(stepField.getText().isEmpty()) {
 					Critter.worldTimeStep();
 					System.out.println("stepped 1 time");
     			}else {
-    				int steps = Integer.parseInt(stepField.getText());
-    				for (int i = 0; i < steps; i++) {
-    					Critter.worldTimeStep();
-    					System.out.println("stepped multiple times");
+    				try {
+    					int steps = Integer.parseInt(stepField.getText());
+        				for (int i = 0; i < steps; i++) {
+        					Critter.worldTimeStep();
+        					System.out.println("stepped multiple times");
+        				}
     				}
+    				catch(Exception e){
+    					System.out.println("error processing: " + stepField.getText() + " seed");
+    				}
+    				
     			}
+				Critter.updateDisplay();
 			}
 		});
         
@@ -158,7 +169,7 @@ public class CritterWorld extends Application {
 					int num = Integer.parseInt(seedField.getText());
         			Critter.setSeed(num);
 				}
-				catch(NumberFormatException e) {
+				catch(Exception e) {
     					System.out.println("error processing: " + seedField.getText());
     				}
 			}
@@ -168,7 +179,21 @@ public class CritterWorld extends Application {
         stat.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
-        		//statbox.appendText()
+        		try {
+        			List<Critter> result = null;
+					result = Critter.getInstances(statField.getText());
+					Class<?> crit = null;
+					Class [] list = new Class[1];
+					list[0] = java.util.List.class;
+					crit = Class.forName(Critter.getPackage() + "." + statField.getText());
+					java.lang.reflect.Method runStats = crit.getMethod("runStats", list);
+				 	statbox.setText((String) runStats.invoke(crit, result));
+					
+					}
+					
+				catch (Exception e) {
+					System.out.println("error processing: " + statField.getText());
+				}
         	}
         });
         
