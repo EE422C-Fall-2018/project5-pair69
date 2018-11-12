@@ -5,6 +5,9 @@ import java.util.concurrent.TimeUnit;
 
 import assignment5.Critter;
 import assignment5.Params;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,13 +33,14 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class CritterWorld extends Application {
 
 	public static GridPane world = new GridPane();
 	static BorderPane bp = new BorderPane();
-	static boolean stopped = false;
-	static boolean animating = false;
+	static Timeline timeline  = new Timeline();
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
@@ -134,10 +138,8 @@ public class CritterWorld extends Application {
         Button stop = new Button();
         stop.setText("Stop");
         grid.add(stop, 1, 7);
-        
-        if(animating == false) {
-        	
-        
+        stop.setDisable(true);
+
         make.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -230,13 +232,25 @@ public class CritterWorld extends Application {
         		System.exit(0);
         	}
         });
-        }
+        
         
         stop.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
-        		stopped = true;
-        		animating = false;
+        		makeField.setDisable(false);
+        		makenum.setDisable(false);
+        		make.setDisable(false);
+        		step.setDisable(false);
+        		stepField.setDisable(false);
+        		seed.setDisable(false);
+        		seedField.setDisable(false);
+        		stat.setDisable(false);
+        		statField.setDisable(false);
+        		statbox.setDisable(false);
+        		end.setDisable(false);
+        		animation.setDisable(false);
+        		stop.setDisable(true);
+        		timeline.stop();
         		System.out.println("Stopped");
         	}
         });
@@ -245,15 +259,35 @@ public class CritterWorld extends Application {
         	@Override
         	public void handle(ActionEvent event) {
         		double speed = slider.getValue();
- 
-        		while(stopped == false) {
-        			animating = true;
-        			
-        			printCritter.delay(10000, new Runnable(){ public void run(){ printCritter.animate(speed); } });
-        			Critter.updateDisplay();
-        			System.out.println("animating");
-        		}
+        		makeField.setDisable(true);
+        		makenum.setDisable(true);
+        		make.setDisable(true);
+        		step.setDisable(true);
+        		stepField.setDisable(true);
+        		seed.setDisable(true);
+        		seedField.setDisable(true);
+        		stat.setDisable(true);
+        		statField.setDisable(true);
+        		statbox.setDisable(true);
+        		end.setDisable(true);
+        		animation.setDisable(true);
+        		stop.setDisable(false);
         		
+        		KeyFrame keyFrame  = new KeyFrame(Duration.millis(10000), new EventHandler<ActionEvent>() {
+        	        	@Override
+        	        	public void handle(ActionEvent event) {
+        	        		for(int i =0;i<speed;i++) {
+        	        			Critter.worldTimeStep();
+        	        			
+        	        		}
+        	        		Critter.updateDisplay();
+        	        	}
+        	        });
+
+        			timeline.getKeyFrames().add(keyFrame);
+        			timeline.setCycleCount(Timeline.INDEFINITE); 
+        			timeline.play();
+
         	}
         });
         
