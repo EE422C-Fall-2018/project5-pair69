@@ -5,9 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import assignment5.Critter;
 import assignment5.Params;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,6 +20,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -33,14 +36,13 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class CritterWorld extends Application {
 
 	public static GridPane world = new GridPane();
 	static BorderPane bp = new BorderPane();
-	static Timeline timeline  = new Timeline();
-	
+	static boolean stopped = false;
+	static boolean animating = false;
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
@@ -57,7 +59,12 @@ public class CritterWorld extends Application {
 //		Button button2 = new Button("Button 2");
 //		grid.add(button2, 0, 0);
 //		grid.add(button1, 0, 2);
-		world.setStyle("-fx-background-color: white; -fx-grid-lines-visible: true");
+		BackgroundImage myBI= new BackgroundImage(new Image("https://www.google.com/images/srpr/logo3w.png",32,32,false,true),
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                  BackgroundSize.DEFAULT);
+        
+        world.setBackground(new Background(myBI));
+		world.setStyle("-fx-grid-lines-visible: true");
 		world.setPadding(new Insets(10,10,10,10));
 		//world.setGridLinesVisible(true);
 		for (int i = 0; i < Params.world_width; i++) {
@@ -138,8 +145,10 @@ public class CritterWorld extends Application {
         Button stop = new Button();
         stop.setText("Stop");
         grid.add(stop, 1, 7);
-        stop.setDisable(true);
-
+        
+        if(animating == false) {
+        	
+        
         make.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -232,25 +241,13 @@ public class CritterWorld extends Application {
         		System.exit(0);
         	}
         });
-        
+        }
         
         stop.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
-        		makeField.setDisable(false);
-        		makenum.setDisable(false);
-        		make.setDisable(false);
-        		step.setDisable(false);
-        		stepField.setDisable(false);
-        		seed.setDisable(false);
-        		seedField.setDisable(false);
-        		stat.setDisable(false);
-        		statField.setDisable(false);
-        		statbox.setDisable(false);
-        		end.setDisable(false);
-        		animation.setDisable(false);
-        		stop.setDisable(true);
-        		timeline.stop();
+        		stopped = true;
+        		//animating = false;
         		System.out.println("Stopped");
         	}
         });
@@ -258,36 +255,18 @@ public class CritterWorld extends Application {
         animation.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
-        		double speed = slider.getValue();
-        		makeField.setDisable(true);
-        		makenum.setDisable(true);
-        		make.setDisable(true);
-        		step.setDisable(true);
-        		stepField.setDisable(true);
-        		seed.setDisable(true);
-        		seedField.setDisable(true);
-        		stat.setDisable(true);
-        		statField.setDisable(true);
-        		statbox.setDisable(true);
-        		end.setDisable(true);
-        		animation.setDisable(true);
-        		stop.setDisable(false);
+        		int timeToWait = (int) slider.getValue(); 
+                try {
+                    for (int i=0; i<timeToWait ; i++) {
+                        Thread.sleep(1000);
+                        Critter.worldTimeStep();
+                        Critter.displayWorld();
+                    }
+                } catch (InterruptedException ie)
+                {
+                    Thread.currentThread().interrupt();
+                }
         		
-        		KeyFrame keyFrame  = new KeyFrame(Duration.millis(10000), new EventHandler<ActionEvent>() {
-        	        	@Override
-        	        	public void handle(ActionEvent event) {
-        	        		for(int i =0;i<speed;i++) {
-        	        			Critter.worldTimeStep();
-        	        			
-        	        		}
-        	        		Critter.updateDisplay();
-        	        	}
-        	        });
-
-        			timeline.getKeyFrames().add(keyFrame);
-        			timeline.setCycleCount(Timeline.INDEFINITE); 
-        			timeline.play();
-
         	}
         });
         
@@ -297,6 +276,7 @@ public class CritterWorld extends Application {
         //BorderPane.setAlignment(world, Pos.CENTER);
         //BorderPane.setAlignment(grid, Pos.TOP_RIGHT);
         BorderPane bp = new BorderPane(world, null, grid, null, null);
+        
 		//gridPane.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(new Scene(bp,300,250));
 		primaryStage.show();
