@@ -1,7 +1,12 @@
 package application;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 import assignment5.Critter;
 import assignment5.Params;
@@ -9,6 +14,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -23,11 +29,20 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
@@ -57,7 +72,12 @@ public class CritterWorld extends Application {
 //		Button button2 = new Button("Button 2");
 //		grid.add(button2, 0, 0);
 //		grid.add(button1, 0, 2);
-		world.setStyle("-fx-background-color: white; -fx-grid-lines-visible: true");
+		BackgroundImage myBI= new BackgroundImage(new Image("http://www.ece.utexas.edu/sites/default/files/portraits/VNK2016_smaller.jpg",1250,1000,false,true),
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                  BackgroundSize.DEFAULT);
+        
+        CritterWorld.world.setBackground(new Background(myBI));
+		world.setStyle("-fx-grid-lines-visible: true");
 		world.setPadding(new Insets(10,10,10,10));
 		//world.setGridLinesVisible(true);
 		for (int i = 0; i < Params.world_width; i++) {
@@ -139,6 +159,10 @@ public class CritterWorld extends Application {
         stop.setText("Stop");
         grid.add(stop, 1, 7);
         stop.setDisable(true);
+        
+        Button music = new Button();
+        music.setText("Music");
+        grid.add(music, 0, 8);
 
         make.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
 			@Override
@@ -172,13 +196,13 @@ public class CritterWorld extends Application {
 			public void handle(ActionEvent event) {
 				if(stepField.getText().isEmpty()) {
 					Critter.worldTimeStep();
-					System.out.println("stepped 1 time");
+					//System.out.println("stepped 1 time");
     			}else {
     				try {
     					int steps = Integer.parseInt(stepField.getText());
         				for (int i = 0; i < steps; i++) {
         					Critter.worldTimeStep();
-        					System.out.println("stepped multiple times");
+        					//System.out.println("stepped multiple times");
         				}
     				}
     				catch(Exception e){
@@ -233,6 +257,23 @@ public class CritterWorld extends Application {
         	}
         });
         
+        music.setOnAction(new EventHandler<ActionEvent>() {
+        	@Override
+        	public void handle(ActionEvent event) {
+        		
+        		try {
+        	        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/assignment5/song.wav").getAbsoluteFile());
+        	        Clip clip = AudioSystem.getClip();
+        	        clip.open(audioInputStream);
+        	        clip.start();
+        	    } catch(Exception ex) {
+        	        System.out.println("Error with playing sound.");
+        	        ex.printStackTrace();
+        	    }
+                
+              	}
+        });
+        
         
         stop.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
@@ -251,7 +292,7 @@ public class CritterWorld extends Application {
         		animation.setDisable(false);
         		stop.setDisable(true);
         		timeline.stop();
-        		System.out.println("Stopped");
+        		//System.out.println("Stopped");
         	}
         });
         
@@ -273,7 +314,7 @@ public class CritterWorld extends Application {
         		animation.setDisable(true);
         		stop.setDisable(false);
         		
-        		KeyFrame keyFrame  = new KeyFrame(Duration.millis(10000), new EventHandler<ActionEvent>() {
+        		KeyFrame keyFrame  = new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
         	        	@Override
         	        	public void handle(ActionEvent event) {
         	        		for(int i =0;i<speed;i++) {
@@ -298,11 +339,24 @@ public class CritterWorld extends Application {
         //BorderPane.setAlignment(grid, Pos.TOP_RIGHT);
         BorderPane bp = new BorderPane(world, null, grid, null, null);
 		//gridPane.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-		primaryStage.setScene(new Scene(bp,300,250));
+		
+	    
+
+//	    final Task task = new Task() {
+//
+//	        protected Object call() throws Exception {
+//	            int s = 2147483647;
+//	            AudioClip audio = new AudioClip(getClass().getResource("Schoolboy Q -  Hell Of A Night.wav").toExternalForm());
+//	            audio.setVolume(0.5f);
+//	            audio.setCycleCount(s);
+//	            audio.play();
+//	            return null;
+//	        }
+//	    };
+//	    Thread thread = new Thread(task);
+//	    thread.start();
+	    primaryStage.setScene(new Scene(bp,300,250));
 		primaryStage.show();
-		
-		
-		
 	
 	}
 
