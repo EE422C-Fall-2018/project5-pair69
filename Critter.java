@@ -709,6 +709,7 @@ private final int step(Character type, int steps, int initVal) {
 	}
 	
 //	public static void displayWorld(Object pane) {
+//	
 //		Stage primaryStage = new Stage();
 //		pane = primaryStage;
 //		GridPane gridPane = new GridPane();
