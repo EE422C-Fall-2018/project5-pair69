@@ -24,6 +24,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
@@ -32,11 +33,10 @@ import javafx.stage.Stage;
 
 public class CritterWorld extends Application {
 
-	static GridPane world = new GridPane();
+	public static GridPane world = new GridPane();
 	static BorderPane bp = new BorderPane();
 	static boolean stopped = false;
 	static boolean animating = false;
-
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
@@ -107,11 +107,17 @@ public class CritterWorld extends Application {
         TextField statField = new TextField ();
         statField.setPromptText("Enter Critter Class");
         grid.add(statField, 0, 4);
-        TextArea statbox = new TextArea();
-        statbox.setPrefColumnCount(2);
-        grid.add(statbox, 0, 5);
         
-        //animation
+        TextArea statbox = new TextArea();
+        //VBox vbox = new VBox(statbox);
+        //statbox.setPrefColumnCount(2);
+        grid.add(statbox,0,5,2,1);
+        
+        //quit button
+        Button end = new Button();
+        end.setText("Quit");
+        grid.add(end, 0, 8);
+        
         Button animation = new Button();
         animation.setText("Animate");
         grid.add(animation, 0, 7);
@@ -130,11 +136,7 @@ public class CritterWorld extends Application {
         grid.add(stop, 1, 7);
         
         if(animating == false) {
-        
-        //quit button
-        Button end = new Button();
-        end.setText("Quit");
-        grid.add(end, 0, 8);
+        	
         
         make.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
 			@Override
@@ -168,13 +170,13 @@ public class CritterWorld extends Application {
 			public void handle(ActionEvent event) {
 				if(stepField.getText().isEmpty()) {
 					Critter.worldTimeStep();
-					//System.out.println("stepped 1 time");
+					System.out.println("stepped 1 time");
     			}else {
     				try {
     					int steps = Integer.parseInt(stepField.getText());
         				for (int i = 0; i < steps; i++) {
         					Critter.worldTimeStep();
-        					//System.out.println("stepped multiple times");
+        					System.out.println("stepped multiple times");
         				}
     				}
     				catch(Exception e){
@@ -221,6 +223,7 @@ public class CritterWorld extends Application {
         	}
         });
         
+        
         end.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
@@ -228,33 +231,27 @@ public class CritterWorld extends Application {
         	}
         });
         }
+        
         stop.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
         		stopped = true;
         		animating = false;
+        		System.out.println("Stopped");
         	}
         });
         
         animation.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
-        		
-        		
         		double speed = slider.getValue();
+ 
         		while(stopped == false) {
-        			for(int i =0;i<speed;i++) {
-            			animating = true;
-            			Critter.worldTimeStep();
-            			
-            		}
+        			animating = true;
+        			
+        			printCritter.delay(10000, new Runnable(){ public void run(){ printCritter.animate(speed); } });
         			Critter.updateDisplay();
-        			try {
-						TimeUnit.SECONDS.sleep(1);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+        			System.out.println("animating");
         		}
         		
         	}
@@ -262,8 +259,6 @@ public class CritterWorld extends Application {
         
         
         
-       
-
         
         //BorderPane.setAlignment(world, Pos.CENTER);
         //BorderPane.setAlignment(grid, Pos.TOP_RIGHT);
