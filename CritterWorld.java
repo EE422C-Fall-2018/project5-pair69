@@ -1,6 +1,7 @@
 package application;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import assignment5.Critter;
 import assignment5.Params;
@@ -16,6 +17,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -32,6 +34,8 @@ public class CritterWorld extends Application {
 
 	static GridPane world = new GridPane();
 	static BorderPane bp = new BorderPane();
+	static boolean stopped = false;
+	static boolean animating = false;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -107,10 +111,30 @@ public class CritterWorld extends Application {
         statbox.setPrefColumnCount(2);
         grid.add(statbox, 0, 5);
         
+        //animation
+        Button animation = new Button();
+        animation.setText("Animate");
+        grid.add(animation, 0, 7);
+        Slider slider = new Slider();
+        slider.setMin(0);
+        slider.setMax(100);
+        slider.setValue(50);
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+        slider.setMajorTickUnit(50);
+        slider.setMinorTickCount(5);
+        slider.setBlockIncrement(10);
+        grid.add(slider, 0, 6);
+        Button stop = new Button();
+        stop.setText("Stop");
+        grid.add(stop, 1, 7);
+        
+        if(animating == false) {
+        
         //quit button
         Button end = new Button();
         end.setText("Quit");
-        grid.add(end, 0, 6);
+        grid.add(end, 0, 8);
         
         make.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
 			@Override
@@ -144,13 +168,13 @@ public class CritterWorld extends Application {
 			public void handle(ActionEvent event) {
 				if(stepField.getText().isEmpty()) {
 					Critter.worldTimeStep();
-					System.out.println("stepped 1 time");
+					//System.out.println("stepped 1 time");
     			}else {
     				try {
     					int steps = Integer.parseInt(stepField.getText());
         				for (int i = 0; i < steps; i++) {
         					Critter.worldTimeStep();
-        					System.out.println("stepped multiple times");
+        					//System.out.println("stepped multiple times");
         				}
     				}
     				catch(Exception e){
@@ -197,13 +221,48 @@ public class CritterWorld extends Application {
         	}
         });
         
-        
         end.setOnAction(new EventHandler<ActionEvent>() {
         	@Override
         	public void handle(ActionEvent event) {
         		System.exit(0);
         	}
         });
+        }
+        stop.setOnAction(new EventHandler<ActionEvent>() {
+        	@Override
+        	public void handle(ActionEvent event) {
+        		stopped = true;
+        		animating = false;
+        	}
+        });
+        
+        animation.setOnAction(new EventHandler<ActionEvent>() {
+        	@Override
+        	public void handle(ActionEvent event) {
+        		
+        		
+        		double speed = slider.getValue();
+        		while(stopped == false) {
+        			for(int i =0;i<speed;i++) {
+            			animating = true;
+            			Critter.worldTimeStep();
+            			
+            		}
+        			Critter.updateDisplay();
+        			try {
+						TimeUnit.SECONDS.sleep(1);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+        		
+        	}
+        });
+        
+        
+        
+       
 
         
         //BorderPane.setAlignment(world, Pos.CENTER);
