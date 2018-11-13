@@ -1,28 +1,26 @@
-package assignment5;
-
+package application;
+	
 import javafx.application.Application;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+
 
 public class Main extends Application {
-	static GridPane grid = new GridPane();
-	static GridPane modelGrid = new GridPane();
-	static TextArea stat = new TextArea();
-	static VBox statsArea = new VBox(stat);
-	static int steps =0;
-	static boolean shown = false;
+	@Override
+	public void start(Stage primaryStage) {
+		try {
+			BorderPane root = new BorderPane();
+			Scene scene = new Scene(root,400,400);
+			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static void main(String[] args) {
 		launch(args);
-		
 	}
-
-	@Override
-	public void start(Stage arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

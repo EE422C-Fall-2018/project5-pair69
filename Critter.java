@@ -24,7 +24,8 @@ public abstract class Critter {
 		SQUARE,
 		TRIANGLE,
 		DIAMOND,
-		STAR
+		STAR,
+		TEKASHI
 	}
 	
 	/* the default color is white, which I hope makes critters invisible by default
