@@ -24,8 +24,7 @@ public abstract class Critter {
 		SQUARE,
 		TRIANGLE,
 		DIAMOND,
-		STAR,
-		TEKASHI
+		STAR
 	}
 	
 	/* the default color is white, which I hope makes critters invisible by default
@@ -319,15 +318,15 @@ private final int step(Character type, int steps, int initVal) {
 			initVal = initVal + steps;  		//adds the number of steps to the critter's inital position
 
 			if(initVal == -1) {
-				initVal = Params.world_width-1;		//wraps critter world
+				initVal = Params.world_height-1;		//wraps critter world
 			}
 			if(initVal == -2) {
-				initVal = Params.world_width-2;
+				initVal = Params.world_height-2;
 			}
-			if(initVal == Params.world_width) {
+			if(initVal == Params.world_height) {
 				initVal = 0;
 			}
-			if(initVal == Params.world_width+1) {
+			if(initVal == Params.world_height+1) {
 				initVal = 1;
 			}
 			
@@ -710,16 +709,7 @@ private final int step(Character type, int steps, int initVal) {
 	}
 	
 //	public static void displayWorld(Object pane) {
-//	
-//		Stage primaryStage = new Stage();
-//		pane = primaryStage;
-//		GridPane gridPane = new GridPane();
-//		gridPane.setMinSize(Params.world_width, Params.world_height);
-//		gridPane.setPadding(new Insets(25,25,25,25));
-//		//gridPane.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-//		primaryStage.setScene(new Scene(gridPane,300,250));
-//		primaryStage.show();
-//		//viewColor
+
 //		
 //	} 
 	//Alternate displayWorld, where you use Main.<pane> to reach into your

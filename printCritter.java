@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -17,6 +18,7 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -27,17 +29,12 @@ import javafx.scene.shape.Shape;
 
 
 public class printCritter {
-	private static void setCanvas(Canvas canvas, Image img) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.drawImage(img, 0, 0,canvas.getWidth(), canvas.getHeight());
-    }
+	 
 	public static Shape print(CritterShape shape, Color outline, Color fill, int x, int y) {
 		Shape s = null;
-		int size;
-			if (Params.world_height <= 7||Params.world_width<=7) {
-				size = 50;
-			}
-			else if (Params.world_height <= 30||Params.world_width<=30) {
+		int size = 10;
+		
+			if (Params.world_height <= 30||Params.world_width<=30) {
 				size = 18;
 			}
 			else if (Params.world_height <= 50||Params.world_width <= 50) {
@@ -59,20 +56,15 @@ public class printCritter {
 		switch(shape) {
 		case CIRCLE:
 			s = new Circle(size/2);
-			s.setFill(fill);
-			s.setStroke(outline);
 			break;
 		case SQUARE:
 			s = new Rectangle(size,size);
-			
 //			if(size <= 10) {
 //				s = new Rectangle(0.75*size*size,0.75*size*size);
 //			}
 //			else {
 //				s = new Rectangle(2*size,2*size);
 //			}
-			s.setFill(fill);
-			s.setStroke(outline);
 			break;
 		case TRIANGLE:
 			Polygon triangle = new Polygon();
@@ -82,8 +74,6 @@ public class printCritter {
 				    1.0, (double)size-1.0
 			});
 			s = triangle;
-			s.setFill(fill);
-			s.setStroke(outline);
 			break;
 		case DIAMOND:
 			Polygon diamond = new Polygon();
@@ -94,8 +84,6 @@ public class printCritter {
 					1.0, (double)size/2.0
 			});
 			s = diamond;
-			s.setFill(fill);
-			s.setStroke(outline);
 			break;
 		case STAR:
 			Polygon star = new Polygon();
@@ -115,48 +103,31 @@ public class printCritter {
 			}
 			 star.getPoints().addAll( points );
 			 s=star;
-			 s.setFill(fill);
-			 s.setStroke(outline);
+			
 			 break;
-		
-		case TEKASHI:
-		
-		s = new Rectangle(size,size);
-		
-//		if(size <= 10) {
-//			s = new Rectangle(0.75*size*size,0.75*size*size);
-//		}
-//		else {
-//			s = new Rectangle(2*size,2*size);
-//		}
-		//Image img = new Image("https://static.gulfnews.com/polopoly_fs/1.2282395!/image/35137129.jpg_gen/derivatives/box_460346/35137129.jpg");
-		//ImagePattern imgp = new ImagePattern(img);
-		
-		//s.setFill(imgp);
-		s.setFill(fill);
-		s.setStroke(outline);
-		break;
 		default:
 			break;
 		}
 		
-		
+		s.setFill(fill);
+		s.setStroke(outline);
 		CritterWorld.world.add(s, x, y);
 		return null;
 	}
-	public static void clearDisplay() {
-		Node node = CritterWorld.world.getChildren().get(0);
+	public static void clearDisplay() {     
+		
 		CritterWorld.world.getChildren().clear();
-		CritterWorld.world.getChildren().add(0,node);
+		CritterWorld.world.setStyle("-fx-grid-lines-visible: true");
+
 		BackgroundImage myBI= new BackgroundImage(new Image("http://www.ece.utexas.edu/sites/default/files/portraits/VNK2016_smaller.jpg",1250,1000,false,true),
                 BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                   BackgroundSize.DEFAULT);
         
         CritterWorld.world.setBackground(new Background(myBI));
+ 
 		
 	}
 	
 	
-		
-	
+
 }
