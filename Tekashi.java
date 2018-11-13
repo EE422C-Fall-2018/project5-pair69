@@ -1,5 +1,10 @@
 package assignment5;
 
+import java.io.File;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 public class Tekashi extends Critter{
 	@Override
@@ -33,9 +38,12 @@ public class Tekashi extends Critter{
 	public void doTimeStep() {
 
 		hasMoved = false;
-		if(getEnergy() < 500) { 
-			walk(dir);
-			hasMoved = true;
+		if(getEnergy() < 500) {
+			boolean f = true;
+				if(look(dir, f) == null || look(dir, f) == "Algae") {
+					walk(dir);
+					hasMoved = true;
+			}
 		}
 
 		if(getEnergy() >= 500) {
@@ -46,6 +54,15 @@ public class Tekashi extends Critter{
 			sugma++;
 		}
 		dir = Critter.getRandomInt(8);
+//		try {
+//	        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/assignment5/SCUM_GANG_SOUND_EFFECT-uLZGG_6YZBo.wav").getAbsoluteFile());
+//	        Clip clip = AudioSystem.getClip();
+//	        clip.open(audioInputStream);
+//	        clip.start();
+//	    } catch(Exception ex) {
+//	        System.out.println("Error with playing sound.");
+//	        ex.printStackTrace();
+//	    }
 	}
 	
 	public static String runStats(java.util.List<Critter> list) {
@@ -64,5 +81,5 @@ public class Tekashi extends Critter{
 	public CritterShape viewShape() {
 		return CritterShape.TEKASHI;
 	}
-	public javafx.scene.paint.Color viewColor() { return javafx.scene.paint.Color.PINK; }
+	//public javafx.scene.paint.Color viewColor() { return javafx.scene.paint.Color.PINK; }
 }
