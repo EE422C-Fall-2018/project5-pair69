@@ -21,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -36,6 +37,7 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 
 import javafx.stage.Stage;
@@ -46,10 +48,7 @@ public class CritterWorld extends Application {
 	public static GridPane world = new GridPane();
 	static BorderPane bp = new BorderPane();
 	static Timeline timeline  = new Timeline();
-	
-	
-	
-	
+
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -77,7 +76,7 @@ public class CritterWorld extends Application {
                 BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                   BackgroundSize.DEFAULT);
         
-        CritterWorld.world.setBackground(new Background(myBI));
+        world.setBackground(new Background(myBI));
 		world.setStyle("-fx-grid-lines-visible: true");
 		world.setPadding(new Insets(5,5,5,5));
 
@@ -94,7 +93,25 @@ public class CritterWorld extends Application {
            	rc.setValignment(VPos.CENTER);
         	world.getRowConstraints().add(rc);
         }
+        int columns = Params.world_width;
+        int rows = Params.world_height;
+        for (int i = 0; i < columns; i++) {
+        for (int j = 0; j < rows; j++) {
+              Pane pane = new Pane();
+//              world.setOnMouseReleased(e -> {
+//                  world.getChildren().add(Anims.getAtoms(1));
+//              });
+              pane.getStyleClass().add("game-grid-cell");
+              if (i == 0) {
+                  pane.getStyleClass().add("first-column");
+              }
+              if (j == 0) {
+                  pane.getStyleClass().add("first-row");
+              }
+              CritterWorld.world.add(pane, i, j);
+          }
         
+        } 
         //make critter button
     	
         TextField makeField = new TextField ();
@@ -152,12 +169,12 @@ public class CritterWorld extends Application {
         
         //slider for animation
         Slider slider = new Slider();
-        slider.setMin(0);
+        slider.setMin(1);
         slider.setMax(100);
         slider.setValue(50);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(50);
+        slider.setMajorTickUnit(49);
         slider.setMinorTickCount(5);
         slider.setBlockIncrement(10);
         grid.add(slider, 7, 0);
@@ -376,9 +393,12 @@ public class CritterWorld extends Application {
         //BorderPane.setAlignment(grid, Pos.TOP_RIGHT);
         BorderPane bp = new BorderPane(world, null, null, grid, null);
 		//gridPane.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-		primaryStage.setScene(new Scene(bp,300,250));
+        //Scene scene = new Scene(world, (columns * 40) + 100, (rows * 40) + 100, Color.WHITE);
+        //primaryStage.setScene(scene);
+        Scene scene = new Scene(bp,300,250);
+		primaryStage.setScene(scene);
 		primaryStage.show();
-		
+		scene.setFill(printCritter.createGridPattern());
 		
 		
 	

@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -17,6 +18,7 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -27,41 +29,52 @@ import javafx.scene.shape.Shape;
 
 
 public class printCritter {
-	private static void setCanvas(Canvas canvas, Image img) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.drawImage(img, 0, 0,canvas.getWidth(), canvas.getHeight());
-    }
+	 
 	public static Shape print(CritterShape shape, Color outline, Color fill, int x, int y) {
-		int size = 0;
-		if(Params.world_height > 50 && Params.world_width>50) {
-			size = 5;
-		}
-		else {
-			size = 10;
-		}
 		Shape s = null;
+		int size = 10;
+		
+			if (Params.world_height <= 30||Params.world_width<=30) {
+				size = 18;
+			}
+			else if (Params.world_height <= 50||Params.world_width <= 50) {
+				size = 12;
+			}
+			else if (Params.world_height <= 75||Params.world_width <= 75) {
+				size = 8;
+			}
+			else if (Params.world_height <= 100||Params.world_width <= 100) {
+				size = 6;
+			}
+			else if (Params.world_height <= 120||Params.world_height <= 120) {
+				size = 4;
+			}
+			else {
+				size = 3;
+			}
+		
 		switch(shape) {
 		case CIRCLE:
 			s = new Circle(size/2);
 			break;
 		case SQUARE:
-			if(size == 10) {
-				s = new Rectangle(0.75*size*size,0.75*size*size);
-			}
-			else {
-				s = new Rectangle(2*size,2*size);
-			}
+			s = new Rectangle(size,size);
+//			if(size <= 10) {
+//				s = new Rectangle(0.75*size*size,0.75*size*size);
+//			}
+//			else {
+//				s = new Rectangle(2*size,2*size);
+//			}
 			break;
 		case TRIANGLE:
 			Polygon triangle = new Polygon();
 			triangle.getPoints().addAll(new Double[]{
-				    (double)size/2.0, 1.0,
+					(double)size/2.0, 1.0,
 				    (double)size - 1.0, (double)size - 1.0,
 				    1.0, (double)size-1.0
 			});
 			s = triangle;
 			break;
-			
 		case DIAMOND:
 			Polygon diamond = new Polygon();
 			diamond.getPoints().addAll(new Double[]{
@@ -74,41 +87,25 @@ public class printCritter {
 			break;
 		case STAR:
 			Polygon star = new Polygon();
-			double shs = 5.0;
+			
 			Double[] points = {2050.0, 1500.0, 2170.0, 1860.0, 2590.0, 1860.0, 
 				      2230.0, 2040.0, 2330.0, 2460.0, 2050.0, 2220.0, 1770.0, 2460.0, 1870.0, 2040.0, 
 				      1510.0, 1860.0, 1930.0, 1860.0};
-			if(size == 5) {
+			if(size <= 6) {
 				for(int i = 0; i < points.length; i++) {
 					points[i] = points[i]/(45*size^2);
 				}
 			}
 			else {
 				for(int i = 0; i < points.length; i++) {
-					points[i] = points[i]/(size);
+					points[i] = points[i]/(size*7);
 				}
 			}
 			 star.getPoints().addAll( points );
 			 s=star;
-			//figure this out later ig
+			
 			 break;
-			 
-//		case TEKASHI:
-//			Rectangle tekashi;
-//			if(size == 10) {
-//				tekashi = new Rectangle(0.75*size*size,0.75*size*size);
-//			}
-//			else {
-//				tekashi = new Rectangle(2*size,2*size);
-//			}
-//			//Image image = new Image(getClass().getResource("src/assignment5/35137129.png").toExternalForm())
-//			Image img = new Image("https://static.gulfnews.com/polopoly_fs/1.2282395!/image/35137129.jpg_gen/derivatives/box_460346/35137129.jpg");
-//			Canvas imgc = new Canvas();
-//			setCanvas(imgc, img);
-//			tekashi.setFill(imgc);
-//			s = tekashi;
-//			break;
-//		default:
+		default:
 			break;
 		}
 		
@@ -117,19 +114,64 @@ public class printCritter {
 		CritterWorld.world.add(s, x, y);
 		return null;
 	}
-	public static void clearDisplay() {
-		Node node = CritterWorld.world.getChildren().get(0);
+	public static void clearDisplay() {     
+		
+		//CritterWorld.world.getChildren().retainAll(CritterWorld.world.getChildren().get(0));
+		//CritterWorld.world.getChildren().removeAll(CritterWorld.world.getChildren());
+//		Node node = CritterWorld.world.getChildren().get(0);
 		CritterWorld.world.getChildren().clear();
-		CritterWorld.world.getChildren().add(0,node);
+		CritterWorld.world.setStyle("-fx-grid-lines-visible: true");
+		
+		//CritterWorld.scene.setFill(printCritter.createGridPattern());
+//		CritterWorld.world.getChildren().add(0,node);
 		BackgroundImage myBI= new BackgroundImage(new Image("http://www.ece.utexas.edu/sites/default/files/portraits/VNK2016_smaller.jpg",1250,1000,false,true),
                 BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                   BackgroundSize.DEFAULT);
         
         CritterWorld.world.setBackground(new Background(myBI));
+        
+        //CritterWorld.world.setGridLinesVisible(true);
+        //CritterWorld.world.setStyle("-fx-grid-lines-visible: true;");
+//        int columns = Params.world_width;
+//        int rows = Params.world_height;
+//        for (int i = 0; i < columns; i++) {
+//        for (int j = 0; j < rows; j++) {
+//              Pane pane = new Pane();
+////              world.setOnMouseReleased(e -> {
+////                  world.getChildren().add(Anims.getAtoms(1));
+////              });
+//              pane.getStyleClass().add("game-grid-cell");
+//              if (i == 0) {
+//                  pane.getStyleClass().add("first-column");
+//              }
+//              if (j == 0) {
+//                  pane.getStyleClass().add("first-row");
+//              }
+//              CritterWorld.world.add(pane, i, j);
+//          }
+//        
+//      } 
 		
 	}
 	
-	
-		
-	
+	public static ImagePattern createGridPattern() {
+
+        double w = Params.world_width;
+        double h = Params.world_height;
+
+        Canvas canvas = new Canvas(w, h);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        gc.setStroke(Color.BLACK);
+        gc.setFill(Color.LIGHTGRAY.deriveColor(1, 1, 1, 0.2));
+        gc.fillRect(0, 0, w, h);
+        gc.strokeRect(0.5, 0.5, w, h);
+
+        Image image = canvas.snapshot(new SnapshotParameters(), null);
+        ImagePattern pattern = new ImagePattern(image, 0, 0, w, h, false);
+
+        return pattern;
+
+    }
+
 }
