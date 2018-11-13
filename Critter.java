@@ -24,7 +24,8 @@ public abstract class Critter {
 		SQUARE,
 		TRIANGLE,
 		DIAMOND,
-		STAR
+		STAR,
+		TEKASHI
 	}
 	
 	/* the default color is white, which I hope makes critters invisible by default
@@ -61,7 +62,7 @@ public abstract class Critter {
 		return Critter.myPackage;
 	}
 	
-	protected final String look(int direction, boolean steps) {
+	public String look(int direction, boolean steps) {
 		this.energy = this.energy - Params.look_energy_cost;
 		int x;
 		int y;
@@ -709,7 +710,16 @@ private final int step(Character type, int steps, int initVal) {
 	}
 	
 //	public static void displayWorld(Object pane) {
-
+//	
+//		Stage primaryStage = new Stage();
+//		pane = primaryStage;
+//		GridPane gridPane = new GridPane();
+//		gridPane.setMinSize(Params.world_width, Params.world_height);
+//		gridPane.setPadding(new Insets(25,25,25,25));
+//		//gridPane.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+//		primaryStage.setScene(new Scene(gridPane,300,250));
+//		primaryStage.show();
+//		//viewColor
 //		
 //	} 
 	//Alternate displayWorld, where you use Main.<pane> to reach into your
